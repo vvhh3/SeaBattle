@@ -1,3 +1,4 @@
+import toast from "react-hot-toast"
 import { useGame } from "../game/gameStore"
 
 type Props = {
@@ -5,12 +6,15 @@ type Props = {
     interactive: boolean
 }
 
-function cellColor(state: string, interactive: boolean) {
-    if (state === 'ship' && !interactive) return 'bg-blue-500'
+function cellColor(state: string, interactive: boolean,phase: string) {
+
+    const isPlacement = phase === 'placement_p1' || phase === 'placement_p2'
+
+    if (state === 'ship' && isPlacement) return 'bg-blue-500'
     if (state === 'ship' && interactive) return 'bg-gray-700'
     if (state === 'hit') return 'bg-red-500'
     if (state === 'miss') return 'bg-gray-400'
-    return 'bg-gray-700 hover:bg-gray-600'
+    return `bg-gray-700 ${interactive ? `hover:bg-gray-600` : ''}`
 }
 
 const Board = ({ userId, interactive }: Props) => {
@@ -29,10 +33,14 @@ const Board = ({ userId, interactive }: Props) => {
             placeShip(userId, row, col)
         } else {
             shoot(row, col)
+            console.log("!111")
+            toast.success(`Ход сделан. Теперь ход игрока ${userId === 0 ? 1: 2}`,{
+                duration: 2000
+            })
         }
     }
     
-    console.log('phase:', phase, 'board:', board, 'interactive:', interactive)
+    // console.log('phase:', phase, 'board:', board, 'interactive:', interactive)
     return (
         <div>
             {board.map((row, rowIndex) => (
@@ -40,7 +48,7 @@ const Board = ({ userId, interactive }: Props) => {
                     {row.map((col, colIndex) => (
                         <div key={colIndex}
                             onClick={() => handleClick(rowIndex, colIndex)}
-                            className={`w-8 h-8 border border-gray-600 cursor-pointer ${cellColor(col.toString(), interactive)}`}>
+                            className={`w-10 h-10 border border-gray-600 ${ interactive ? `cursor-pointer` :''} ${cellColor(col.toString(), interactive, phase)}`}>
                         </div>
                     ))}
                 </div>
