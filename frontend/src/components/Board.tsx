@@ -16,7 +16,7 @@ function cellColor(state: string, interactive: boolean) {
 const Board = ({ userId, interactive }: Props) => {
 
     const phase = useGame(state => state.phase)
-    const board = useGame(state => state.boards)
+    const board = useGame(state => state.boards[userId])
     const shoot = useGame(state => state.shoot)
     const placeShip = useGame(state => state.placeShip)
 
@@ -31,15 +31,16 @@ const Board = ({ userId, interactive }: Props) => {
             shoot(row, col)
         }
     }
-
+    
+    console.log('phase:', phase, 'board:', board, 'interactive:', interactive)
     return (
         <div>
             {board.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
                     {row.map((col, colIndex) => (
-                        <div key={colIndex} 
-                        onClick={() => handleClick(rowIndex,colIndex)}>
-                        className={` w-8 h-8 border border-gray-600 cursor-pointer ${cellColor(col.toString(), interactive)}`}
+                        <div key={colIndex}
+                            onClick={() => handleClick(rowIndex, colIndex)}
+                            className={`w-8 h-8 border border-gray-600 cursor-pointer ${cellColor(col.toString(), interactive)}`}>
                         </div>
                     ))}
                 </div>

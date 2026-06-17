@@ -1,3 +1,4 @@
+import Game from "./components/Game"
 
 
 function App() {
@@ -5,6 +6,7 @@ function App() {
 
   return (
     <>
+    <Game/>
     </>
   )
 }

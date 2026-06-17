@@ -13,7 +13,9 @@ type board = CellState[][]
 
 
 const emptyBoard = (): board => {
-    return Array.from({ length: 10 }, () => Array(10).fill('empty'))
+    return Array.from({ length: 10 }, () =>
+        Array.from({ length: 10 }, () => 'empty' as CellState)
+    )
 }
 
 type Store = {
@@ -26,6 +28,7 @@ type Store = {
 }
 
 export const useGame = create<Store>((set) => ({
+
     phase: 'placement_p1',
     boards: [emptyBoard(), emptyBoard()],
 
