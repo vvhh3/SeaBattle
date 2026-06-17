@@ -2,16 +2,17 @@ import { create } from "zustand";
 
 type CellState = 'empty' | "ship" | "hit" | "miss"
 
-type PhaseGame = 'placement_p1'  // игрок 1 ставит корабли
-    | 'pass'          // экран "передай компьютер"
-    | 'placement_p2'  // игрок 2 ставит корабли
-    | 'battle_p1'     // ход игрока 1
-    | 'battle_p2'     // ход игрока 2
+type PhaseGame = 'placement_p1'
+    | 'pass'
+    | 'placement_p2'
+    | 'battle_p1'
+    | 'battle_p2'
     | 'game_over';
 
 type board = CellState[][]
 
-function emptyBoard(): board {
+
+const emptyBoard = (): board => {
     return Array.from({ length: 10 }, () => Array(10).fill('empty'))
 }
 
@@ -59,9 +60,9 @@ export const useGame = create<Store>((set) => ({
 
     nextPhase: () => set(state => {
 
-        if (state.phase === 'placement_p1') return {phase: 'pass'}
-        else if (state.phase  === 'pass') return {phase: 'placement_p2'}
-        else if (state.phase  === 'placement_p2') return {phase: "battle_p1"}
+        if (state.phase === 'placement_p1') return { phase: 'pass' }
+        else if (state.phase === 'pass') return { phase: 'placement_p2' }
+        else if (state.phase === 'placement_p2') return { phase: "battle_p1" }
         return state
     }),
 
