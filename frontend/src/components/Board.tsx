@@ -27,6 +27,7 @@ function Cell({ row, col, state, phase, onClick }: {
             onClick={onClick}
             className={`w-10 h-10 border border-gray-600 cursor-pointer ${color()}`} />
     )
+    
 }
 
 const Board = ({ userId, interactive }: Props) => {
