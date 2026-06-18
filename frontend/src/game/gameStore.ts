@@ -21,21 +21,41 @@ const emptyBoard = (): board => {
 type Store = {
     phase: PhaseGame
     boards: [board, board]
-    placeShip: (userId: 0 | 1, rows: number, cell: number) => void
+    placedShipIds: number[]  // добавь
+    placeShip: (userId: 0 | 1, row: number, col: number, size: number, shipId: number) => void  // обновь сигнатуру
     shoot: (rows: number, cell: number) => void
     nextPhase: () => void
     reset: () => void
 }
 
+
+
 export const useGame = create<Store>((set) => ({
 
     phase: 'placement_p1',
     boards: [emptyBoard(), emptyBoard()],
+    placedShipIds: [],
 
-    placeShip: (userId, row, coll) => set((state) => {
+    placeShip: (userId, row, col, size, shipId) => set((state) => {
         const boards = structuredClone(state.boards)
-        boards[userId][row][coll] = "ship"
-        return { boards }
+
+        // считаем все клетки корабля
+        const cells = Array.from({ length: size }, (_, i) => ({
+            row: row,
+            col: col + i  // горизонтально
+        }))
+
+        // выход за границы
+        if (cells.some(c => c.col > 9)) return state
+
+        // клетка уже занята
+        if (cells.some(c => boards[userId][c.row][c.col] === 'ship')) return state
+
+        for (const c of cells) {
+            boards[userId][c.row][c.col] = 'ship'
+        }
+
+        return { boards, placedShipIds: [...state.placedShipIds, shipId] }
     }),
 
     shoot: (row, col) => set((state) => {
@@ -72,7 +92,8 @@ export const useGame = create<Store>((set) => ({
     reset: () => {
         set({
             phase: "placement_p1",
-            boards: [emptyBoard(), emptyBoard()]
+            boards: [emptyBoard(), emptyBoard()],
+            placedShipIds: []
         })
     }
 }))

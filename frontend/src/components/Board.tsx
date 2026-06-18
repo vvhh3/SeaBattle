@@ -1,55 +1,56 @@
-import toast from "react-hot-toast"
 import { useGame } from "../game/gameStore"
+import { useDroppable } from '@dnd-kit/core'
 
 type Props = {
     userId: 0 | 1
     interactive: boolean
 }
 
-function cellColor(state: string, interactive: boolean,phase: string) {
-
+function Cell({ row, col, state, phase, onClick }: {
+    row: number, col: number, state: string,
+    phase: string, onClick: () => void
+}) {
+    const { setNodeRef, isOver } = useDroppable({ id: `${row}-${col}` })
     const isPlacement = phase === 'placement_p1' || phase === 'placement_p2'
 
-    if (state === 'ship' && isPlacement) return 'bg-blue-500'
-    if (state === 'ship' && interactive) return 'bg-gray-700'
-    if (state === 'hit') return 'bg-red-500'
-    if (state === 'miss') return 'bg-gray-400'
-    return `bg-gray-700 ${interactive ? `hover:bg-gray-600` : ''}`
+    function color() {
+        if (isOver && isPlacement) return 'bg-blue-400'
+        if (state === 'ship' && isPlacement) return 'bg-blue-500'
+        if (state === 'hit') return 'bg-red-500'
+        if (state === 'miss') return 'bg-gray-400'
+        return 'bg-gray-700 hover:bg-gray-600'
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            onClick={onClick}
+            className={`w-10 h-10 border border-gray-600 cursor-pointer ${color()}`} />
+    )
 }
 
 const Board = ({ userId, interactive }: Props) => {
+    const phase = useGame(s => s.phase)
+    const board = useGame(s => s.boards[userId])
+    const shoot = useGame(s => s.shoot)
 
-    const phase = useGame(state => state.phase)
-    const board = useGame(state => state.boards[userId])
-    const shoot = useGame(state => state.shoot)
-    const placeShip = useGame(state => state.placeShip)
-
-    const isPlacement = phase === 'placement_p1' || phase === 'placement_p2'
-
-    const handleClick = (row: number, col: number) => {
-        if (!interactive) return
-
-        if (isPlacement) {
-            placeShip(userId, row, col)
-        } else {
-            shoot(row, col)
-            console.log("!111")
-            toast.success(`Ход сделан. Теперь ход игрока ${userId === 0 ? 1: 2}`,{
-                duration: 2000
-            })
-        }
-    }
-    
-    // console.log('phase:', phase, 'board:', board, 'interactive:', interactive)
     return (
         <div>
             {board.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
-                    {row.map((col, colIndex) => (
-                        <div key={colIndex}
-                            onClick={() => handleClick(rowIndex, colIndex)}
-                            className={`w-10 h-10 border border-gray-600 ${ interactive ? `cursor-pointer` :''} ${cellColor(col.toString(), interactive, phase)}`}>
-                        </div>
+                    {row.map((cell, colIndex) => (
+                        <Cell
+                            key={colIndex}
+                            row={rowIndex}
+                            col={colIndex}
+                            state={cell}
+                            phase={phase}
+                            onClick={() => {
+                                if (interactive && (phase === 'battle_p1' || phase === 'battle_p2')) {
+                                    shoot(rowIndex, colIndex)
+                                }
+                            }}
+                        />
                     ))}
                 </div>
             ))}

@@ -1,11 +1,15 @@
 import { useGame } from '../game/gameStore'
 import Board from './Board'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { DndContext } from '@dnd-kit/core'
+import ShipPanel from './ShipPanel'
 
 export default function Game() {
 
   const phase = useGame(state => state.phase)
   const nextPhase = useGame(state => state.nextPhase)
   const reset = useGame(state => state.reset)
+  const placeShip = useGame(state => state.placeShip)
 
   // Экран "передай компьютер"
   if (phase === 'pass') {
@@ -27,19 +31,29 @@ export default function Game() {
     const player = phase === 'placement_p1' ? 1 : 2
     const playerIndex = phase === 'placement_p1' ? 0 : 1
 
+    const handleDragEnd = (event: DragEndEvent) => {
+      const { over, active } = event
+      if (!over) return
+
+      const [row, col] = (over.id as string).split('-').map(Number)
+      const { size, shipId } = active.data.current as { size: number, shipId: number }
+
+      placeShip(playerIndex, row, col, size, shipId)
+    }
+
     return (
-      <div className="flex flex-col items-center gap-6 p-8">
-        <h2 className="text-2xl font-bold">Игрок {player} — расставь корабли</h2>
-        <p className="text-gray-400">Кликай по клеткам чтобы поставить корабль</p>
-
-        <Board userId={playerIndex} interactive={true} />
-
-        <button
-          onClick={nextPhase}
-          className="px-6 py-3 bg-green-600 rounded-lg">
-          Готово
-        </button>
-      </div>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className="flex flex-col items-center gap-6 p-8">
+          <h2 className="text-2xl font-bold">Игрок {player} — расставь корабли</h2>
+          <div className="flex gap-8 items-start">
+            <ShipPanel />
+            <Board userId={playerIndex} interactive={false} />
+          </div>
+          <button onClick={nextPhase} className="px-6 py-3 bg-green-600 rounded-lg">
+            Готово
+          </button>
+        </div>
+      </DndContext>
     )
   }
 

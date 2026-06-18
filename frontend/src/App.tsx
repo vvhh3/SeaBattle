@@ -1,7 +1,7 @@
 import { Toaster } from "react-hot-toast"
 import Game from "./components/Game"
 
-
+//npm i @dnd-kit/core
 function App() {
 
 
