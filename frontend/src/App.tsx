@@ -10,6 +10,7 @@ function App() {
       <Toaster
         position="top-center"
         reverseOrder={false} />
+        
       <Game />
     </>
   )
