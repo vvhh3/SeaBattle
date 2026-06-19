@@ -21,7 +21,7 @@ const emptyBoard = (): board => {
 type Store = {
     phase: PhaseGame
     boards: [board, board]
-    placedShipIds: number[]  // добавь
+    placedShipIds: [number[], number[]]  // добавь
     placeShip: (userId: 0 | 1, row: number, col: number, size: number, shipId: number) => void  // обновь сигнатуру
     shoot: (rows: number, cell: number) => void
     nextPhase: () => void
@@ -34,28 +34,27 @@ export const useGame = create<Store>((set) => ({
 
     phase: 'placement_p1',
     boards: [emptyBoard(), emptyBoard()],
-    placedShipIds: [],
+    placedShipIds: [[], []],
 
     placeShip: (userId, row, col, size, shipId) => set((state) => {
         const boards = structuredClone(state.boards)
 
-        // считаем все клетки корабля
         const cells = Array.from({ length: size }, (_, i) => ({
             row: row,
-            col: col + i  // горизонтально
+            col: col + i
         }))
 
-        // выход за границы
         if (cells.some(c => c.col > 9)) return state
-
-        // клетка уже занята
         if (cells.some(c => boards[userId][c.row][c.col] === 'ship')) return state
 
         for (const c of cells) {
             boards[userId][c.row][c.col] = 'ship'
         }
 
-        return { boards, placedShipIds: [...state.placedShipIds, shipId] }
+        const placedShipIds = structuredClone(state.placedShipIds) as [number[], number[]]
+        placedShipIds[userId] = [...placedShipIds[userId], shipId]
+
+        return { boards, placedShipIds }
     }),
 
     shoot: (row, col) => set((state) => {
@@ -82,7 +81,6 @@ export const useGame = create<Store>((set) => ({
     }),
 
     nextPhase: () => set(state => {
-
         if (state.phase === 'placement_p1') return { phase: 'pass' }
         else if (state.phase === 'pass') return { phase: 'placement_p2' }
         else if (state.phase === 'placement_p2') return { phase: "battle_p1" }
@@ -93,7 +91,7 @@ export const useGame = create<Store>((set) => ({
         set({
             phase: "placement_p1",
             boards: [emptyBoard(), emptyBoard()],
-            placedShipIds: []
+            placedShipIds: [[],[]]
         })
     }
 }))

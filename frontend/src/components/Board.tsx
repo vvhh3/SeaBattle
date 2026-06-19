@@ -50,8 +50,7 @@ const Board = ({ userId, interactive }: Props) => {
                                 if (interactive && (phase === 'battle_p1' || phase === 'battle_p2')) {
                                     shoot(rowIndex, colIndex)
                                 }
-                            }}
-                        />
+                            }}/>
                     ))}
                 </div>
             ))}

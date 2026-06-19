@@ -36,8 +36,11 @@ function Ship({ ship }: { ship: typeof SHIPS[0] }) {
 }
 
 export default function ShipPanel() {
-  const placedShipIds = useGame(s => s.placedShipIds)
-  const remaining = SHIPS.filter(s => !placedShipIds.includes(s.id))
+  const phase = useGame(s => s.phase)
+  const playerIndex = phase === 'placement_p2' ? 1 : 0
+  const placedShipIds = useGame(s => s.placedShipIds[playerIndex])
+
+  const remaining = SHIPS.filter(s => !placedShipIds.includes(s.id))  // без [], просто s.id
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-gray-800 rounded-xl">
